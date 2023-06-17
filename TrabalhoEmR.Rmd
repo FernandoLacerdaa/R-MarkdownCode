@@ -1,0 +1,140 @@
+---
+title: "LOGO"
+author: "Fernando Dantas"
+date: "2023-06-17"
+output: pdf_document
+---
+
+  
+Exercício 1
+
+```{r}
+library(tidyverse)
+elephants <- read_csv("C:/Users/User/Downloads/ElephantsMF.csv")
+elephants
+```
+
+Exercício 2
+
+```{r}
+head(elephants)
+
+```
+
+Exercício 3
+
+```{r}
+ggplot(elephants, aes(Age, Height, color=Sex))+geom_point()
+```
+Pode-se perceber que existe sim uma correlação entre Idade e Altura. Quanto mais velho é o elefante maior ele será. Também é perceptível que os elefantes machos, em idade avançada, geralmente possuem altura maior que as femeas.
+
+
+Exercício 4
+
+```{r}
+Média_Machos <- mean(elephants$Height[elephants$Sex == "M"])
+Média_Machos
+
+Média_Femeas <- mean(elephants$Height[elephants$Sex == "F"])
+Média_Femeas
+
+Sd_Machos <- sd(elephants$Height[elephants$Sex == "M"])
+Sd_Machos
+
+Sd_Femeas <- sd(elephants$Height[elephants$Sex == "F"])
+Sd_Femeas
+```
+Média dos machos = 185.1
+Desvio Padrão dos machos = 55.6
+
+Média das femeas = 190.0
+Desvio Padrão das femeas = 45.5
+
+Não corroboram, uma vez que o gráfico passa a impressão de que os machos são mais altos.
+
+
+Exercício 5
+```{r}
+ggplot(elephants, aes( reorder(Sex, Height, median), Height)) + geom_boxplot(fill="purple") + xlab("Sex")
+```
+As femeas possuem mediana maior mesmo tendo outliers tendendo para pesos menores. O peso que divide 50% da amostra da femeas é maior do que nos machos.
+
+
+Exercício 6
+```{r}
+ElefantesVelhos <- elephants[elephants$Age > 14, ]
+Media_MachoVelho <- mean(ElefantesVelhos$Height[ElefantesVelhos$Sex == "M"])
+Media_MachoVelho
+
+Media_FemeaVelha <- mean(ElefantesVelhos$Height[ElefantesVelhos$Sex == "F"])
+Media_FemeaVelha
+
+Sd_Machos <- sd(ElefantesVelhos$Height[ElefantesVelhos$Sex == "M"])
+Sd_Machos
+
+Sd_Femeas <- sd(ElefantesVelhos$Height[ElefantesVelhos$Sex == "F"])
+Sd_Femeas
+```
+Se usarmos apenas os machos com idade superior a 14, estes possuem média maior do que as femeas. Ou seja, essa condição muda a premissa original. Esse resultado nos fornece a informação de que as as elefantes femeas mais novas (idade inferior a 14) são mais pesadas que os machos nessa faixa de etária.
+
+Exercício 7
+```{r}
+diabetes <- read.csv("C:/Users/User/Downloads/diabetes_012_health_indicators_BRFSS2015.csv")
+```
+
+Exercício 8
+```{r}
+str(diabetes)
+```
+Variáveis númericas apenas.
+
+
+
+Exercício 9
+```{r}
+diabetes$Sex <- as.factor(diabetes$Sex)
+levels(diabetes$Sex) <- c("F", "M")
+```
+
+Exercício 10
+
+```{r}
+ggplot(diabetes, aes(Diabetes_012) ) + geom_bar(aes(fill = Sex) )
+```
+A quantidade de indivíduos presentes na categoria 0 é muito superior em relação às  outras categorias, mesmo que a distribuição de sexo seja muito similar entre elas.
+
+
+
+Exercício 11
+
+```{r}
+ggplot(diabetes, aes(Diabetes_012) ) + geom_bar(aes(fill = Sex), position = "fill" )
+
+```
+Mulheres são mais presentes nas três categorias, então os homens são minoria na amostra.
+
+
+
+Exercício 12
+```{r}
+ggplot(diabetes, aes(BMI,fill=Sex))+geom_histogram()+facet_wrap(~Sex)
+```
+
+Comportamentos relativamente semelhantes entre os sexos. Porém, os homem possuem um pico único perto dos 30 anos que chama atenção. 
+
+
+
+Exercício 13
+```{r}
+ggplot( diabetes, aes(BMI) ) +
+  geom_histogram( aes(y = after_stat(density), fill = Sex)) +
+  geom_density( color = "black" ) +
+  facet_wrap( ~ Sex )
+```
+
+As alturas mudaram em razão da alta concentração de indivíduos masculinos em um pequeno intervalo etário.
+
+
+
+
+
