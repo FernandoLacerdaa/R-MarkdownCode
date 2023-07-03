@@ -1,0 +1,118 @@
+---
+title: "Labb04"
+author: "Fernando Dantas"
+date: "2023-07-03"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+
+```
+
+Exercício 1
+
+```{r}
+coffee <- read.csv("C:/Users/User/Downloads/coffee_exports.csv", check.names = F)
+
+glimpse(coffee)
+
+```
+O banco não é tidy! Trasnformações precisam ser feitas.
+
+
+Exercício 2
+
+```{r}
+coffee_longer<-coffee%>%
+  pivot_longer(!country,
+               names_to="year",
+               values_to="count")
+ 
+ 
+coffee_longer$year <- as.numeric(coffee_longer$year)
+```
+
+Exercício 3
+
+```{r}
+coffee_br_co <- coffee_longer[coffee_longer$country == "Brazil" | coffee_longer$country == "Colombia", ]
+
+coffee_br_co%>%
+  ggplot(aes(year,count))+geom_line(aes(color=country))
+```
+
+Exercício 4
+
+```{r}
+
+coffee_longer<- coffee_longer%>%
+  group_by(year)%>%
+  mutate(rank=rank(desc(count)))
+
+coffee_longer
+```
+
+Exercício 5
+
+```{r}
+coffee_br_co_vn <- coffee_longer[coffee_longer$country == "Brazil" | coffee_longer$country == "Colombia" | coffee_longer$country == "Viet Nam", ]
+
+coffee_br_co_vn%>%
+  ggplot(aes(year, -rank))+geom_line(aes(color=country))
+```
+
+Exercício 6
+
+```{r}
+us_songs_2017 <- read.csv("C:/Users/User/Downloads/us_songs_2017.csv")
+
+us_features<- read.csv("C:/Users/User/Downloads/us_features.csv")
+```
+
+Exercício 7
+
+```{r}
+us_top200 <- us_songs_2017%>%
+  left_join(us_features,
+            by = c("url", "name"))
+```
+
+Exercício 8
+
+```{r}
+us_top200%>%
+  group_by(name, artist)%>%
+  summarise(total = sum(streams))%>%
+  arrange(desc(total))%>%
+  head(10)
+```
+
+Exercício 9
+
+```{r}
+us_top200$key <- as.factor(us_top200$key)
+levels(us_top200$key)<- c("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+us_top200%>%
+  ggplot(aes(key))+geom_bar()
+```
+
+Exercício 10
+
+```{r}
+us_top200<-us_top200%>%
+  mutate(duration_min = duration_ms/6000)
+
+d_min_mean <- mean(us_top200$duration_min, na.rm=T)
+d_min_sd <- sd(us_top200$duration_min, na.rm=T)
+
+us_top200%>%
+  ggplot(aes(duration_min))+geom_histogram()+geom_vline(xintercept=d_min_mean, color="magenta")
+```
+
+Exercício 11
+
+```{r}
+ggplot(us_top200, aes(loudness, energy))+geom_point()+geom_smooth()
+```
+
