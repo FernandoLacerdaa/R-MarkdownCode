@@ -1,0 +1,145 @@
+---
+title: "Lab04"
+author: "Fernando Dantas"
+date: "2023-07-02"
+output: html_document
+---
+```{r}
+library(tidyverse )
+def_area <- read.csv( "def_area_1988_2022.csv")
+fires_amz <- read.csv( "inpe_brazilian_amazon_fires_1999_2022.csv", check.names = F, sep = ";" )
+phenomenon <- read.csv( "el_nino_la_nina_1999_2022.csv", sep = ";" )
+br_presidents <- read.csv( "br_presidents.csv", sep = ";" )
+```
+
+
+
+
+
+Exercicio 1
+
+
+```{r}
+def_amz <- pivot_wider(def_area,
+                    names_from = "state",
+                    values_from = "area" )
+
+def_amz
+```
+
+Exercicio 2
+```{r}
+def_amz<-def_amz%>%mutate(deforestation = ac+am+ap+ma+mt+pa+ro+rr+to)
+
+```
+Exercício 3
+
+```{r}
+year <- 2022
+ref <- "complete estimate" 
+ac <- 847+(847/11)
+am <- 2607+(2607/11) 
+ap<- 6 + (6/11)
+ma<-282+(282/11)
+mt<-1906+ (1906/11)
+pa <- 4141+(4141/11) 
+ro <- 1512+(1512/11) 
+rr <- 240+ (240/11) 
+to <- 27+(27/11)
+deforestation <- 11568+(11568/11)
+def_new_2022 <- data.frame (year, ref, ac, am, ap, ma, mt, pa,ro,rr,to, deforestation)
+def_amz <- def_amz %>% filter (year != 2022) %>% rbind (def_new_2022)
+
+```
+
+
+Exercício 4
+
+```{r}
+fires_amz<- fires_amz%>%
+  select(year, total)
+colnames(fires_amz)[2] = "fires"
+
+```
+Exercício 5
+
+```{r}
+degradation <- def_amz %>% 
+  select(year, deforestation) 
+degradation <- left_join (degradation, fires_amz)
+degradation <- left_join (degradation, phenomenon)
+degradation <- left_join (degradation, br_presidents)
+degradation
+```
+Exercício 6
+```{r}
+medida<-degradation %>%
+  
+  group_by(president) %>%
+  summarise(mean = mean(deforestation)) %>% 
+  arrange(desc(mean))
+medida
+```
+
+Os governos de antigamente desmatavam em maior quantidade, no geral. Os governos mais recentes vem diminuindo essa prática para estarem de acordo com agendas internacionais.
+
+
+
+Exercício 7
+
+```{r}
+degradation %>%
+  ggplot( aes( year, deforestation ) ) +
+  geom_line() +
+  geom_vline( xintercept = c(1990.33, 1993, 1995, 2003, 2011, 2016.67, 2019),
+              color = "orange", linetype = 3 ) +
+  annotate( "text",
+            x = c(1989.3, 1992.9, 1996.8, 2002.8, 2010.9, 2016.2, 2021.4),
+            y = 31000, 
+            label = c("Collor", "Itamar", "FHC", "Lula", "Dilma", "Temer", "Bolsonaro"),
+            size = 4)
+
+```
+
+
+
+Exercício 8
+
+```{r}
+head(phenomenon)
+
+
+phenom_fire<-left_join(phenomenon, fires_amz, by = "year")
+
+ggplot(phenom_fire, aes(phenomenon, fires))+geom_boxplot(fill="purple")
+
+```
+
+Exercício 9
+
+```{r}
+degradation %>% filter(year >= 1999) %>% ggplot(aes(x = president, fill = phenomenon))+geom_bar()
+
+```
+
+
+Exercício 10
+
+```{r}
+degradation$severity <-factor(degradation$severity, levels = c("Weak", "Moderate", "Strong", "very strong"), ordered = T)
+
+```
+
+
+
+Exercício 11
+
+```{r}
+degradation%>%
+  filter(year>=1999)%>%
+  ggplot(aes(severity, fires))+geom_boxplot(color="red")+facet_wrap(~phenomenon)
+```
+
+
+
+
